@@ -18,16 +18,14 @@ class ChatTTS:
 
     def __init__(
         self,
-        model: str = "cogito:3b",
+        model: str = "cogito:14b",
         kokoro_model_id: str = "prince-canuma/Kokoro-82M",
-        lang_code: str = "a",
+        lang_code: str = "b",
         voice: str = "af_heart",
         speed: float = 1.0,
         split_pattern: str = r"\n+",
         audio_file: str = "assistant_output.wav",
     ):
-        # Disable tokenizer parallelism warnings for Ollama
-        os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
         # Load Kokoro TTS model and pipeline once
         self.kokoro_model = load_model(kokoro_model_id)
@@ -45,10 +43,10 @@ class ChatTTS:
             {
                 "role": "system",
                 "content": """
-You are a conversational companion—a friend over coffee. YOU MUST reply in 1–3 words max.
+You are a conversational companion—a friend over coffee. YOU MUST keep it short.
 
 • Use casual contractions.  
-• Ask a tiny follow‑up: “And?” “How?”  
+• Ask a tiny follow‑up questions to keep the conversation going.
 • Offer brief advice: “Try X.”  
 • Acknowledge: “Tough.” “Nice.”  
 • Tone: mild.  
@@ -56,6 +54,10 @@ You are a conversational companion—a friend over coffee. YOU MUST reply in 1�
 • If silent, suggest: “Coffee?”  
 • Rare personal notes.  
 • Match user language (EN/RU/AR).
+• No long sentences.
+• No lists or bullet points.
+• No formalities.
+• NEVER USE EMOJI.
 
 Examples:
 User: I’m tired.  

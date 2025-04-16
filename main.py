@@ -57,6 +57,7 @@ def main_loop():
 
             # Generate response text only
             reply = assistant.generate_text(f"USER: {sentence}\nASSISTANT:")
+            print(f"You: {sentence}")
             print(f"Assistant: {reply}")
 
             # Pause audio stream to avoid capturing model's voice
