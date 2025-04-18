@@ -1,3 +1,5 @@
+### Install
+
 ```bash
 uv venv
 source .venv/bin/activate
@@ -6,7 +8,9 @@ uv pip install -r requirements.txt
 uv run main.py
 ```
 
-### Configuration with LLM
+### Configuration with LLMs
+- Uses `Ollama` by default, you need it running and models pulled.
+- export `OPENAI_API_KEY` if you are going to use `OpenAI` models
 
 ```python
 # --- Configuration ---
