@@ -2,12 +2,11 @@ import mlx_whisper
 import sounddevice as sd
 import numpy as np
 import threading
-import time
 import sys
 import queue
 import os
 import contextlib
-import webrtcvad  # Voice Activity Detection (Local)
+import webrtcvad
 
 # --- Constants ---
 SAMPLE_RATE = 16000
@@ -277,16 +276,3 @@ class RealTimeTranscriber:
         self._transcriber_thread = None
 
         print("RealTimeTranscriber stopped.", file=sys.stderr)
-
-
-# Example of how to potentially use this if run directly (for testing)
-# if __name__ == "__main__":
-#     transcriber = RealTimeTranscriber()
-#     try:
-#         print("Starting transcription. Press Ctrl+C to stop.")
-#         for sentence in transcriber.start():
-#             print(f"RECEIVED: {sentence}")
-#     except KeyboardInterrupt:
-#         print("Ctrl+C detected, stopping.")
-#     finally:
-#         transcriber.stop()
