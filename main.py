@@ -8,6 +8,7 @@ import os
 import sys
 import threading
 import time
+import argparse
 
 from rich.console import Console
 from rich.panel import Panel
@@ -18,28 +19,66 @@ from moonshine import RealTimeTranscriber
 
 os.environ["TOKENIZERS_PARALLELISM"] = "true"
 
-# --- Configuration ---
-TRANSCRIBER_MODEL = "moonshine/base"
-SILENCE_TIMEOUT_MS = 300
-# LLM_MODEL = "gpt-4o-mini"
-LLM_MODEL = "cogito:3b"
-USE_LOCAL_LLM = True
-TTS_MODEL_ID = "prince-canuma/Kokoro-82M"
-TTS_VOICE = "af_bella"
 
-# --- Rich console instance ---
-console = Console()
+def parse_args():
+    p = argparse.ArgumentParser(description="Real-time speech → LLM → TTS loop")
+    p.add_argument(
+        "--transcriber-model",
+        type=str,
+        default="moonshine/base",
+        help="name of the transcription model",
+    )
+    p.add_argument(
+        "--silence-timeout-ms",
+        type=int,
+        default=300,
+        help="milliseconds of silence before treating as end of utterance",
+    )
+    p.add_argument(
+        "--llm-model",
+        type=str,
+        default="cogito:3b",
+        help="LLM model to use (e.g. gpt-4o-mini, cogito:3b)",
+    )
+    p.add_argument(
+        "--use-local-llm",
+        dest="use_local_llm",
+        action="store_true",
+        help="run LLM locally instead of via API",
+    )
+    p.add_argument(
+        "--no-local-llm",
+        dest="use_local_llm",
+        action="store_false",
+        help="disable local LLM (i.e. force API usage)",
+    )
+    p.set_defaults(use_local_llm=True)
+    p.add_argument(
+        "--tts-model-id",
+        type=str,
+        default="prince-canuma/Kokoro-82M",
+        help="HuggingFace model ID for Kokoro TTS",
+    )
+    p.add_argument(
+        "--tts-voice",
+        type=str,
+        default="af_bella",
+        help="voice identifier for Kokoro TTS",
+    )
+    return p.parse_args()
 
 
-def main_loop():
+def main_loop(args):
     # Initialize transcriber, LLM, and TTS
     transcriber = RealTimeTranscriber(
-        model_name=TRANSCRIBER_MODEL,
+        model_name=args.transcriber_model,
         vad_threshold=0.5,
-        vad_min_silence_ms=SILENCE_TIMEOUT_MS,
+        vad_min_silence_ms=args.silence_timeout_ms,
     )
-    llm = LLMCompletion(model=LLM_MODEL, local=USE_LOCAL_LLM)
-    tts = KokoroTTS(kokoro_model_id=TTS_MODEL_ID, lang_code="b", voice=TTS_VOICE)
+    llm = LLMCompletion(model=args.llm_model, local=args.use_local_llm)
+    tts = KokoroTTS(
+        kokoro_model_id=args.tts_model_id, lang_code="b", voice=args.tts_voice
+    )
     if tts.pipeline is None:
         console.log("Warning: TTS pipeline unavailable; audio replies disabled.")
 
@@ -67,16 +106,14 @@ def main_loop():
             if not sentence:
                 continue
 
-            # Display user message in a cyan panel
             console.print(
                 Panel(sentence, title="You", border_style="cyan", expand=False)
-            )  # :contentReference[oaicite:5]{index=5}
+            )
 
-            # Generate and display assistant reply
             reply = llm.complete(sentence)
             console.print(
                 Panel(reply, title="Assistant", border_style="green", expand=False)
-            )  #
+            )
 
             # Pause mic while speaking
             try:
@@ -107,4 +144,6 @@ def main_loop():
 
 
 if __name__ == "__main__":
-    main_loop()
+    console = Console()
+    args = parse_args()
+    main_loop(args)
