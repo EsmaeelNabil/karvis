@@ -120,7 +120,7 @@ natsort==8.4.0
 networkx==3.4.2
 num2words==0.5.14
 numba==0.61.2
-numpy==2.2.4
+numpy==2.3.2
 ollama==0.4.7
 onnxruntime==1.21.0
 openai==1.75.0
