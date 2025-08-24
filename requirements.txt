@@ -107,7 +107,7 @@ misaki==0.9.4
 mlx==0.24.2
 mlx-audio==0.0.4
 mlx-lm==0.22.5
-mlx-vlm==0.1.22
+mlx-vlm==0.3.3
 mlx-whisper==0.4.2
 more-itertools==10.6.0
 mpmath==1.3.0
